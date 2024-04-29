@@ -1,0 +1,18 @@
+{
+	"name": "ds_generic_source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_salesDB",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "1.Source"
+		},
+		"annotations": [
+			"ds_generic_source"
+		],
+		"type": "AzureSqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

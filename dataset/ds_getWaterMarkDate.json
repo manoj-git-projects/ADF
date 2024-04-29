@@ -1,0 +1,16 @@
+{
+	"name": "ds_getWaterMarkDate",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_salesDB",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "1.Source"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

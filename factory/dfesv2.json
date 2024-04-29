@@ -1,0 +1,9 @@
+{
+	"name": "dfesv2",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "fb0a931f-78d5-4cb2-8478-908b17a06df3",
+		"tenantId": "9179d01a-e94c-4488-b5f0-4554bc474f8c"
+	}
+}

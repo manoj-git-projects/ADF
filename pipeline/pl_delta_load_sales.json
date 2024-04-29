@@ -1,0 +1,219 @@
+{
+	"name": "pl_delta_load_sales",
+	"properties": {
+		"activities": [
+			{
+				"name": "read control table",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select * from dbo.control_tbl where isActive=1",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_generic_source",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "loop for all tables",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "read control table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('read control table').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "delta load",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "@item().sourceQuery",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_generic_source",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_target",
+									"type": "DatasetReference",
+									"parameters": {
+										"schema": {
+											"value": "@item().targetSchema",
+											"type": "Expression"
+										},
+										"tableName": {
+											"value": "@item().targetTable",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "get latest watermark value",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "delta load",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderStoredProcedureName": "[dbo].[sp_getMaxDate]",
+									"storedProcedureParameters": {
+										"columnName": {
+											"type": "String",
+											"value": {
+												"value": "@item().waterMarkColoumn",
+												"type": "Expression"
+											}
+										},
+										"schema": {
+											"type": "String",
+											"value": {
+												"value": "@item().targetSchema",
+												"type": "Expression"
+											}
+										},
+										"tableName": {
+											"type": "String",
+											"value": {
+												"value": "@item().targetTable",
+												"type": "Expression"
+											}
+										}
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ds_generic_source",
+									"type": "DatasetReference"
+								},
+								"firstRowOnly": true
+							}
+						},
+						{
+							"name": "update watermark value",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "get latest watermark value",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[sp_controlTableUpdate]",
+								"storedProcedureParameters": {
+									"maxDate": {
+										"value": {
+											"value": "@activity('get latest watermark value').output.firstRow.NewWaterMarkValue",
+											"type": "Expression"
+										},
+										"type": "Datetime"
+									},
+									"tableName": {
+										"value": {
+											"value": "@item().targetTable",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_salesDB",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"folder": {
+			"name": "2.child pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-04-29T08:00:13Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

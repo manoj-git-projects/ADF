@@ -1,0 +1,30 @@
+{
+	"name": "pl_master",
+	"properties": {
+		"description": "This is Master pipeline",
+		"activities": [
+			{
+				"name": "run delta load for sales",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_delta_load_sales",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false
+				}
+			}
+		],
+		"folder": {
+			"name": "1.master pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-04-28T13:16:53Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
