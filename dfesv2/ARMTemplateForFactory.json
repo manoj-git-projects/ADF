@@ -286,29 +286,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ds_control_table_read')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_salesDB",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "1.Source"
-				},
-				"annotations": [
-					"ds_control_table_read"
-				],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_salesDB')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/ds_generic_source')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -323,48 +300,6 @@
 				"annotations": [
 					"ds_generic_source"
 				],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_salesDB')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_getWaterMarkDate')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_salesDB",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "1.Source"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_salesDB')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_source')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_salesDB",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "1.Source"
-				},
-				"annotations": [],
 				"type": "AzureSqlTable",
 				"schema": [],
 				"typeProperties": {}
